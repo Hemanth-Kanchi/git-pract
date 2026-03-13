@@ -18,11 +18,3 @@ EXPOSE 3000
 
 # Start the app
 CMD ["node", "src/server.js"]
-```
-
-Create a **`.dockerignore`** file:
-```
-node_modules
-.git
-.github
-*.log
