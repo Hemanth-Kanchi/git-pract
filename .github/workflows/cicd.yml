@@ -1,0 +1,67 @@
+name: CI/CD Pipeline
+
+# Runs on every push to main
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+
+  # ─────────────────────────────
+  # STAGE 1: Test the app
+  # ─────────────────────────────
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+
+  # ─────────────────────────────
+  # STAGE 2: Build & Push Image
+  # ─────────────────────────────
+  build-and-push:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    needs: test                       # only runs if tests pass ✅
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build & push image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/my-cicd-app:latest
+
+  # ─────────────────────────────
+  # STAGE 3: Deployment
+  # ─────────────────────────────
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: build-and-push             # only runs if image is pushed ✅
+    steps:
+      - name: Simulate deployment
+        run: |
+          echo "✅ Image pushed to Docker Hub successfully!"
+          echo "🚀 Image: ${{ secrets.DOCKERHUB_USERNAME }}/my-cicd-app:latest"
+          echo "📦 Ready to deploy anywhere — Render, Railway, VPS, etc."
