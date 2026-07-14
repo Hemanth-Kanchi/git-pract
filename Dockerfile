@@ -1,20 +1,12 @@
-# Use lightweight Node image
-FROM node:18-alpine
+FROM python:3.12-slim
 
-# Set working directory inside container
 WORKDIR /app
 
-# Copy package files first (for caching)
-COPY package*.json ./
+COPY app/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Install dependencies
-RUN npm install --production
+COPY app/ .
 
-# Copy rest of the code
-COPY . .
+EXPOSE 5000
 
-# Expose the port
-EXPOSE 3000
-
-# Start the app
-CMD ["node", "src/server.js"]
+CMD ["python", "app.py"]

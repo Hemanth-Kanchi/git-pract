@@ -1,0 +1,11 @@
+replicaCount: 1
+
+image:
+  repository: 816020558159.dkr.ecr.ap-south-1.amazonaws.com/flask-gitops-app
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 5000
